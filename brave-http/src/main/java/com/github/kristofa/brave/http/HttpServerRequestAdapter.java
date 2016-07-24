@@ -1,14 +1,17 @@
 package com.github.kristofa.brave.http;
 
+import static com.github.kristofa.brave.IdConversion.convertToLong;
+
+import com.github.kristofa.brave.ClientAddress;
 import com.github.kristofa.brave.KeyValueAnnotation;
 import com.github.kristofa.brave.ServerRequestAdapter;
 import com.github.kristofa.brave.SpanId;
 import com.github.kristofa.brave.TraceData;
-import java.util.Collection;
-import java.util.Collections;
+
 import zipkin.TraceKeys;
 
-import static com.github.kristofa.brave.IdConversion.convertToLong;
+import java.util.Collection;
+import java.util.Collections;
 
 public class HttpServerRequestAdapter implements ServerRequestAdapter {
 
@@ -38,6 +41,11 @@ public class HttpServerRequestAdapter implements ServerRequestAdapter {
             }
         }
         return TraceData.builder().build();
+    }
+
+    @Override
+    public ClientAddress getClientAddress() {
+        return ClientAddress.UNKNOWN;
     }
 
     @Override

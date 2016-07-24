@@ -17,6 +17,13 @@ public interface ServerRequestAdapter {
     TraceData getTraceData();
 
     /**
+     * Get the client address and name from the request.
+     *
+     * @return the client address
+     */
+    ClientAddress getClientAddress();
+
+    /**
      * Gets the span name for request.
      *
      * @return Span name for request.

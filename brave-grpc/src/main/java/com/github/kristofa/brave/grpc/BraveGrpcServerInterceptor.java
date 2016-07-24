@@ -5,6 +5,7 @@ import static com.github.kristofa.brave.grpc.GrpcKeys.GRPC_STATUS_CODE;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.github.kristofa.brave.Brave;
+import com.github.kristofa.brave.ClientAddress;
 import com.github.kristofa.brave.KeyValueAnnotation;
 import com.github.kristofa.brave.ServerRequestAdapter;
 import com.github.kristofa.brave.ServerRequestInterceptor;
@@ -84,6 +85,11 @@ public final class BraveGrpcServerInterceptor implements ServerInterceptor {
                 }
             }
             return TraceData.builder().build();
+        }
+
+        @Override
+        public ClientAddress getClientAddress() {
+            return null;
         }
 
         @Override

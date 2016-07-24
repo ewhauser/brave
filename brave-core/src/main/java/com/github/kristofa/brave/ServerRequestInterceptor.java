@@ -1,8 +1,8 @@
 package com.github.kristofa.brave;
 
-import java.util.logging.Logger;
-
 import static com.github.kristofa.brave.internal.Util.checkNotNull;
+
+import java.util.logging.Logger;
 
 /**
  * Contains logic for handling an incoming server request.
@@ -31,6 +31,7 @@ public class ServerRequestInterceptor {
     public void handle(ServerRequestAdapter adapter) {
         serverTracer.clearCurrentSpan();
         final TraceData traceData = adapter.getTraceData();
+        final ClientAddress clientAddress = adapter.getClientAddress();
 
         Boolean sample = traceData.getSample();
         if (sample != null && Boolean.FALSE.equals(sample)) {
@@ -46,7 +47,12 @@ public class ServerRequestInterceptor {
                 LOGGER.fine("Received no span state.");
                 serverTracer.setStateUnknown(adapter.getSpanName());
             }
-            serverTracer.setServerReceived();
+            if (clientAddress == null || ClientAddress.UNKNOWN.equals(clientAddress)) {
+                serverTracer.setServerReceived();
+            } else {
+                serverTracer.setServerReceived(clientAddress.getIpv4Address(), clientAddress.getPort(),
+                    clientAddress.getServiceName());
+            }
             for(KeyValueAnnotation annotation : adapter.requestAnnotations())
             {
                 serverTracer.submitBinaryAnnotation(annotation.getKey(), annotation.getValue());
