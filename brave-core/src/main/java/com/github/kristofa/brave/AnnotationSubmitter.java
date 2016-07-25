@@ -1,12 +1,12 @@
 package com.github.kristofa.brave;
 
+import static com.github.kristofa.brave.internal.Util.checkNotNull;
+
 import com.github.kristofa.brave.internal.Nullable;
 import com.twitter.zipkin.gen.Annotation;
 import com.twitter.zipkin.gen.BinaryAnnotation;
 import com.twitter.zipkin.gen.Endpoint;
 import com.twitter.zipkin.gen.Span;
-
-import static com.github.kristofa.brave.internal.Util.checkNotNull;
 
 /**
  * Used to submit application specific annotations.
@@ -110,7 +110,7 @@ public abstract class AnnotationSubmitter {
     void submitAddress(String key, int ipv4, int port, @Nullable String serviceName) {
         Span span = spanAndEndpoint().span();
         if (span != null) {
-            serviceName = serviceName != null ? serviceName : "unknown";
+            serviceName = serviceName != null ? serviceName : Endpoint.UNKNOWN_SERVICE_NAME;
             Endpoint endpoint = Endpoint.create(serviceName, ipv4, port);
             BinaryAnnotation ba = BinaryAnnotation.address(key, endpoint);
             addBinaryAnnotation(span, ba);

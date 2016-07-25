@@ -1,10 +1,13 @@
 package com.github.kristofa.brave.servlet;
 
+import com.github.kristofa.brave.http.HttpHeaderUtils;
 import com.github.kristofa.brave.http.HttpServerRequest;
 
-import javax.servlet.http.HttpServletRequest;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class ServletHttpServerRequest implements HttpServerRequest {
 
@@ -17,6 +20,14 @@ public class ServletHttpServerRequest implements HttpServerRequest {
     @Override
     public String getHttpHeaderValue(String headerName) {
         return request.getHeader(headerName);
+    }
+
+    @Override
+    public InetSocketAddress getClientAddress() {
+        //Use data from proxy headers before using data returned by servlet container
+        InetSocketAddress remoteAddressFromHeaders = HttpHeaderUtils.getRemoteAddressFromHeaders(this);
+        return remoteAddressFromHeaders != null ? remoteAddressFromHeaders :
+            InetSocketAddress.createUnresolved(request.getRemoteHost(), request.getRemotePort());
     }
 
     @Override

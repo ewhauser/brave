@@ -9,13 +9,16 @@ import com.github.kristofa.brave.http.HttpServerRequest;
 import com.github.kristofa.brave.http.HttpServerRequestAdapter;
 import com.github.kristofa.brave.http.HttpServerResponseAdapter;
 import com.github.kristofa.brave.http.SpanNameProvider;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class ServletHandlerInterceptor extends HandlerInterceptorAdapter {
 
@@ -40,6 +43,11 @@ public class ServletHandlerInterceptor extends HandlerInterceptorAdapter {
             @Override
             public String getHttpHeaderValue(String headerName) {
                 return request.getHeader(headerName);
+            }
+
+            @Override
+            public InetSocketAddress getClientAddress() {
+                return InetSocketAddress.createUnresolved(request.getRemoteHost(), request.getRemotePort());
             }
 
             @Override

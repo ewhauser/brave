@@ -2,6 +2,8 @@ package com.github.kristofa.brave;
 
 import static com.github.kristofa.brave.internal.Util.checkNotNull;
 
+import com.twitter.zipkin.gen.Endpoint;
+
 import java.util.logging.Logger;
 
 /**
@@ -31,7 +33,7 @@ public class ServerRequestInterceptor {
     public void handle(ServerRequestAdapter adapter) {
         serverTracer.clearCurrentSpan();
         final TraceData traceData = adapter.getTraceData();
-        final ClientAddress clientAddress = adapter.getClientAddress();
+        final Endpoint clientAddress = adapter.getClientAddress();
 
         Boolean sample = traceData.getSample();
         if (sample != null && Boolean.FALSE.equals(sample)) {
@@ -47,11 +49,11 @@ public class ServerRequestInterceptor {
                 LOGGER.fine("Received no span state.");
                 serverTracer.setStateUnknown(adapter.getSpanName());
             }
-            if (clientAddress == null || ClientAddress.UNKNOWN.equals(clientAddress)) {
+            if (clientAddress == null) {
                 serverTracer.setServerReceived();
             } else {
-                serverTracer.setServerReceived(clientAddress.getIpv4Address(), clientAddress.getPort(),
-                    clientAddress.getServiceName());
+                serverTracer.setServerReceived(clientAddress.ipv4, clientAddress.port,
+                    clientAddress.service_name);
             }
             for(KeyValueAnnotation annotation : adapter.requestAnnotations())
             {

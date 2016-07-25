@@ -1,9 +1,10 @@
 package com.twitter.zipkin.gen;
 
-import com.github.kristofa.brave.internal.Nullable;
-import java.io.Serializable;
-
 import static com.github.kristofa.brave.internal.Util.equal;
+
+import com.github.kristofa.brave.internal.Nullable;
+
+import java.io.Serializable;
 
 /**
  * Indicates the network context of a service recording an annotation with two
@@ -15,6 +16,15 @@ import static com.github.kristofa.brave.internal.Util.equal;
  * clients such as web browsers.
  */
 public class Endpoint implements Serializable {
+
+  /**
+   * Zipkin's convention for unknown service name's is 'unknown'.
+   */
+  public static final String UNKNOWN_SERVICE_NAME = "unknown";
+
+  public static Endpoint create(int ipv4, int port) {
+    return create(UNKNOWN_SERVICE_NAME, ipv4, port);
+  }
 
   public static Endpoint create(String serviceName, int ipv4, int port) {
     return new Endpoint(serviceName, ipv4, (short) (port & 0xffff));

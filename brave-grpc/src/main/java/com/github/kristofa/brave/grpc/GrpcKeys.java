@@ -13,11 +13,6 @@ public final class GrpcKeys {
      */
     public static final String GRPC_STATUS_CODE = "grpc.status_code";
 
-    /**
-     * The remote address of the client
-     */
-    public static final String GRPC_REMOTE_ADDR = "grpc.remote_addr";
-
     private GrpcKeys() {
     }
 }

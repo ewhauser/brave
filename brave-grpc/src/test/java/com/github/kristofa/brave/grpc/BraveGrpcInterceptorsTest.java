@@ -11,6 +11,7 @@ import com.github.kristofa.brave.LocalTracer;
 import com.github.kristofa.brave.Sampler;
 import com.github.kristofa.brave.SpanId;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.twitter.zipkin.gen.AnnotationType;
 import com.twitter.zipkin.gen.BinaryAnnotation;
 import com.twitter.zipkin.gen.Span;
 
@@ -30,6 +31,8 @@ import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import zipkin.Constants;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -156,9 +159,8 @@ public class BraveGrpcInterceptorsTest {
 
         //Server spans should have the GRPC_REMOTE_ADDR binary annotation
         assertThat(serverSpan.getBinary_annotations())
-            .filteredOn(b -> b.key.equals(GrpcKeys.GRPC_REMOTE_ADDR))
-            .extracting(b -> new String(b.value))
-            .has(new Condition<>(b -> b.matches("^/127.0.0.1:[\\d]+$"), "a local IP address"), atIndex(0));
+            .filteredOn(b -> b.key.equals(Constants.CLIENT_ADDR))
+            .has(new ClientAddressAnnotationCondition(), atIndex(0));
 
         validateSpan(spans.get(1), Arrays.asList("cs", "cr"));
     }
@@ -194,4 +196,17 @@ public class BraveGrpcInterceptorsTest {
             return enableSampling;
         }
     }
+
+    class ClientAddressAnnotationCondition extends Condition<BinaryAnnotation> {
+
+        @Override
+        public boolean matches(BinaryAnnotation value) {
+            return value.getKey().equals(Constants.CLIENT_ADDR)
+                && Arrays.equals(new byte[] { 1 }, value.getValue())
+                && AnnotationType.BOOL == value.type
+                && value.host != null;
+        }
+
+    }
+
 }

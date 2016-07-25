@@ -1,5 +1,7 @@
 package com.github.kristofa.brave;
 
+import com.twitter.zipkin.gen.Endpoint;
+
 import java.util.Collection;
 
 /**
@@ -21,7 +23,7 @@ public interface ServerRequestAdapter {
      *
      * @return the client address
      */
-    ClientAddress getClientAddress();
+    Endpoint getClientAddress();
 
     /**
      * Gets the span name for request.

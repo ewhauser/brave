@@ -5,7 +5,6 @@ import static com.github.kristofa.brave.grpc.GrpcKeys.GRPC_STATUS_CODE;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.github.kristofa.brave.Brave;
-import com.github.kristofa.brave.ClientAddress;
 import com.github.kristofa.brave.KeyValueAnnotation;
 import com.github.kristofa.brave.ServerRequestAdapter;
 import com.github.kristofa.brave.ServerRequestInterceptor;
@@ -13,6 +12,7 @@ import com.github.kristofa.brave.ServerResponseAdapter;
 import com.github.kristofa.brave.ServerResponseInterceptor;
 import com.github.kristofa.brave.SpanId;
 import com.github.kristofa.brave.TraceData;
+import com.twitter.zipkin.gen.Endpoint;
 
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.Metadata;
@@ -24,7 +24,9 @@ import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -88,8 +90,15 @@ public final class BraveGrpcServerInterceptor implements ServerInterceptor {
         }
 
         @Override
-        public ClientAddress getClientAddress() {
-            return null;
+        public Endpoint getClientAddress() {
+            SocketAddress socketAddress = call.attributes().get(ServerCall.REMOTE_ADDR_KEY);
+            if (socketAddress != null && socketAddress instanceof InetSocketAddress) {
+                InetSocketAddress inetSocketAddress = (InetSocketAddress)socketAddress;
+                int ipv4 = ByteBuffer.wrap(inetSocketAddress.getAddress().getAddress()).getInt();
+                return Endpoint.create(ipv4, inetSocketAddress.getPort());
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -99,14 +108,7 @@ public final class BraveGrpcServerInterceptor implements ServerInterceptor {
 
         @Override
         public Collection<KeyValueAnnotation> requestAnnotations() {
-            SocketAddress socketAddress = call.attributes().get(ServerCall.REMOTE_ADDR_KEY);
-            if (socketAddress != null) {
-                KeyValueAnnotation remoteAddrAnnotation = KeyValueAnnotation.create(
-                    GrpcKeys.GRPC_REMOTE_ADDR, socketAddress.toString());
-                return Collections.singleton(remoteAddrAnnotation);
-            } else {
-                return Collections.emptyList();
-            }
+            return Collections.emptyList();
         }
     }
 

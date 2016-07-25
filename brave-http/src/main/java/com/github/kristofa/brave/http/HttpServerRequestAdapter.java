@@ -2,14 +2,16 @@ package com.github.kristofa.brave.http;
 
 import static com.github.kristofa.brave.IdConversion.convertToLong;
 
-import com.github.kristofa.brave.ClientAddress;
 import com.github.kristofa.brave.KeyValueAnnotation;
 import com.github.kristofa.brave.ServerRequestAdapter;
 import com.github.kristofa.brave.SpanId;
 import com.github.kristofa.brave.TraceData;
+import com.twitter.zipkin.gen.Endpoint;
 
 import zipkin.TraceKeys;
 
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -44,8 +46,15 @@ public class HttpServerRequestAdapter implements ServerRequestAdapter {
     }
 
     @Override
-    public ClientAddress getClientAddress() {
-        return ClientAddress.UNKNOWN;
+    public Endpoint getClientAddress() {
+        InetSocketAddress address = serverRequest.getClientAddress();
+
+        if (address == null) {
+            return null;
+        }
+
+        int ipv4 = ByteBuffer.wrap(address.getAddress().getAddress()).getInt();
+        return Endpoint.create(ipv4, address.getPort());
     }
 
     @Override
