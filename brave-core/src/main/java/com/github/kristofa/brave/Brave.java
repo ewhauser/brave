@@ -1,12 +1,13 @@
 package com.github.kristofa.brave;
 
+import static com.github.kristofa.brave.InetAddressUtilities.getLocalHostLANAddress;
+import static com.github.kristofa.brave.InetAddressUtilities.toInt;
+
 import com.github.kristofa.brave.internal.Util;
+
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Random;
-
-import static com.github.kristofa.brave.InetAddressUtilities.getLocalHostLANAddress;
-import static com.github.kristofa.brave.InetAddressUtilities.toInt;
 
 public class Brave {
 
@@ -220,5 +221,7 @@ public class Brave {
         serverSpanAnnotationSubmitter = AnnotationSubmitter.create(SpanAndEndpoint.ServerSpanAndEndpoint.create(builder.state));
         serverSpanThreadBinder = new ServerSpanThreadBinder(builder.state);
         clientSpanThreadBinder = new ClientSpanThreadBinder(builder.state);
+
+        BraveContext.register(this);
     }
 }
